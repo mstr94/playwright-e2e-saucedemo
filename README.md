@@ -26,8 +26,6 @@ https://mstr94.github.io/playwright-e2e-saucedemo/
 Portfolio piece + personal sandbox.  
 I’ll keep adding crazy edge cases, visual testing, API interception, accessibility checks, component testing, load testing with Playwright, etc. whenever I have free time.
 
-Goal: always have a live, green, public project I can show any recruiter in 30 seconds and immediately stand out.
-
 ### Run locally
 ```bash
 git clone https://github.com/mstr94/playwright-e2e-saucedemo.git
