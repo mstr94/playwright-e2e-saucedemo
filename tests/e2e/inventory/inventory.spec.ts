@@ -45,18 +45,18 @@ test.describe('Feature: Products list', () => {
     await inventoryPage.checkImagesLoad();
   });
 
-  test('problem_user sees broken images', async ({ page }) => {
+  test('problem_user sees identical product images (visual glitch)', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
     await loginPage.login('problem_user', 'secret_sauce');
-    const problemInventory = new InventoryPage(page);
+    await expect(page).toHaveURL(/inventory/);
 
-    const images = await problemInventory.inventoryItemImages.elementHandles();
-    let brokenCount = 0;
-    for (const img of images) {
-      const naturalWidth = await img.evaluate(el => (el as HTMLImageElement).naturalWidth);
-      if (naturalWidth === 0) brokenCount++;
-    }
-    await expect(brokenCount).toBeGreaterThan(0);
+    const srcs = await page.locator('.inventory_item_img img').evaluateAll(imgs =>
+      imgs.map(img => img.getAttribute('src'))
+    );
+
+    const allSame = srcs.every(src => src === srcs[0]);
+    expect(allSame).toBe(true);
+    expect(srcs[0]).toMatch(/sl-404|dog|glitch/i); 
   });
 });
