@@ -1,0 +1,49 @@
+name: Playwright E2E Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2, 3]  # 3-shard parallel
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright
+      run: npx playwright install --with-deps
+
+    - name: Run tests (sharded)
+      run: npx playwright test --shard=${{ matrix.shard }}/3
+      env:
+        PLAYWRIGHT_TEST_BASE_URL: https://www.saucedemo.com
+
+    - name: Upload report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report-shard-${{ matrix.shard }}
+        path: playwright-report/
+
+    - name: Deploy report to GitHub Pages
+      if: github.ref == 'refs/heads/main' && always()
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./playwright-report
+        force_orphan: true
